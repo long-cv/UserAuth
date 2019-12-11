@@ -3,7 +3,13 @@ const bcrypt = require('bcryptjs');
 const jwt = require('../services/jwt');
 const model = require('../model/model');
 const userModel = require('../model/user');
+const path = require('path');
+const multer = require('multer');
+const fs = require('fs');
+const config = require('../config/config')
+
 const router = express.Router();
+const avatarUpload = multer({dest: path.join(__dirname, '../public/avatar')}).single('avatar');
 
 isAuthorized = async (request, response, next) => {
 	if (!request.headers.authorization) return response.status(401).json({success: false, messeage: "access denied!"});
@@ -43,7 +49,8 @@ router.post('/register', async (request, response, next) => {
 			userEmail: request.body.userEmail,
 			userPassword: hashPassword,
 			userName: request.body.userName,
-			userPhoneNumber: request.body.userPhoneNumber
+			userPhoneNumber: request.body.userPhoneNumber,
+			userAvatar: config.avatarDefault
 		}
 		await model.dbCreate(userModel.userModel, newUser);
 		httpStatusCode = 201;
@@ -105,5 +112,32 @@ router.put('/update', isAuthorized, async (request, response, next) => {
 	}
 });
 
+router.post('/avatar', isAuthorized, avatarUpload, async (request, response, next) => {
+	//console.log(request);
+	if (!request.body.userEmail) return response.status(400).json({success: false, message: "need an email for identifying user."});
+	if (!request.file) return response.status(400).json({success: false, message: "no avatar uploaded."});
+	try {
+		let emailObj = {userEmail: request.body.userEmail};
+		let user = await model.dbReadOne(userModel.userModel, emailObj);
+		if (!user) return response.status(400).json({success: false, message: "can't identify user."});
+		
+		let newName = user._id + Date.now();
+		let newAvatarPath = request.file.destination + '\\' + newName;
+		fs.rename(request.file.path, newAvatarPath, error => {
+			if (error) return response.status(400).json({success: false, message: error});
+		});
+		
+		let newUserAvatar = config.avatarFolder + '/' + newName;
+		let result = await model.dbUpdate(userModel.userModel, emailObj, {userAvatar: newUserAvatar}, {});
+		if (result) {
+			user.userAvatar = newUserAvatar;
+			return response.status(201).json({success: true, message: "uploading avatar is done.", user: user});
+		}
+		
+		response.status(400).json({success: false, message: "updating avatar failed."});
+	} catch(error) {
+		response.status(400).json({success: false, messeage: error ? error : "an error occurred when updating avatar."});
+	}
+});
 
 module.exports = router;

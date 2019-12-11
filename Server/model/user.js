@@ -17,6 +17,9 @@ const userSchema = mongoose.Schema({
 	},
 	userPhoneNumber: {
 		type: String
+	},
+	userAvatar: {
+		type: String
 	}
 });
 module.exports = {

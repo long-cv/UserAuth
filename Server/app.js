@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const config = require('./config/config');
 const userRouter = require('./routes/user');
 const model = require('./model/model');
@@ -6,6 +7,7 @@ const model = require('./model/model');
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use('/user', userRouter);
 
 model.dbConnect()

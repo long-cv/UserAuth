@@ -7,6 +7,7 @@ import {URL_REQ} from './constants/constants';
 import {ListItem} from './components/listItem';
 import {LabelTextInput} from './components/labelTextInput';
 import Service from './service';
+import {ImageButton} from './components/imageButton';
 
 export {
   AppLoading,
@@ -18,4 +19,5 @@ export {
   ProfileUpdate,
   LabelTextInput,
   Service,
+  ImageButton,
 };

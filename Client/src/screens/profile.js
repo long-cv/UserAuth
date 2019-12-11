@@ -2,17 +2,27 @@ import React, {Component} from 'react';
 import {
   View,
   Text,
-  Image,
   Button,
   StyleSheet,
   SafeAreaView,
   AsyncStorage,
   FlatList,
+  Alert,
 } from 'react-native';
-import {assets} from '../../data/export_data';
 import {ListItem} from '../export_src';
+import {ImageButton} from '../export_src';
+import ImagePicker from 'react-native-image-picker';
+import axios from 'axios';
+import {URL_REQ} from '../export_src'
 
 class Profile extends Component {
+  constructor(props) {
+    super(props);
+    let user = this.props.navigation.state.params;
+    this.state = {
+      avatarURI: {uri: user?.userAvatar},
+    };
+  }
   pressUpdate = () => {
     let {navigation} = this.props;
     let user = navigation.state.params;
@@ -25,6 +35,59 @@ class Profile extends Component {
   renderSeparator = () => {
     return <View style={{height: 1, backgroundColor: 'black'}} />;
   };
+  onPressImageButton = () => {
+    let options = {
+      title: 'Select Avatar',
+      //customButtons: [{name: 'fb', title: 'Choose Photo from Facebook'}],
+      storageOptions: {
+        skipBackup: true,
+        //path: 'images',
+      },
+    };
+    ImagePicker.showImagePicker(options, async response => {
+      //console.log('response: ', response);
+      if (response.didCancel) {
+        console.log('cancel image picker.');
+      } else if (response.customButtom) {
+        console.log('custom button: ', response.customButton);
+      } else if (response.error) {
+        console.log('error: ', response.error);
+      } else {
+        let user = this.props.navigation.state.params;
+        let avatar = new FormData();
+        avatar.append('userEmail', user?.userEmail);
+        avatar.append('avatar', {
+          uri: response.uri,
+          name: response.fileName,
+          type: response.type,
+        });
+        try {
+          let token = await AsyncStorage.getItem('userToken');
+          let resp = await axios({
+            method: 'POST',
+            url: URL_REQ.USER_AVATAR,
+            headers: {
+              authorization: `Bearer ${token}`,
+              Accept: 'application/json',
+              'Content-Type': 'multipart/form-data',
+            },
+            data: avatar,
+          });
+          //console.log(resp.data);
+          if (resp.data.success) {
+            user.userAvatar = resp.data.user.userAvatar;
+            //console.log(user.userAvatar);
+            this.setState({
+              avatarURI: {uri: resp.data.user.userAvatar},
+            });
+          }
+        } catch (error) {
+          //console.log(error.response.config);
+          Alert.alert('Error', 'Updating avatar failed.');
+        }
+      }
+    });
+  };
   //UNSAFE_componentWillMount() {}
   render() {
     let user = this.props.navigation.state.params;
@@ -35,7 +98,11 @@ class Profile extends Component {
     return (
       <SafeAreaView style={__style.profile_scr}>
         <View style={__style.avatarStyle}>
-          <Image style={__style.avatarImageStyle} source={assets.avatar} />
+          <ImageButton
+            onPress={this.onPressImageButton}
+            style={__style.avatarImageStyle}
+            source={this.state.avatarURI}
+          />
           <Text style={__style.txtNameStyle}>{user?.userName}</Text>
         </View>
         <View style={__style.detailStyle}>
