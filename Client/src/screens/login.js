@@ -23,16 +23,11 @@ class Login extends Component {
       userPassword: '',
     };
   }
-  setUserEmail(email) {
+  setUserState = (userState, value) => {
     this.setState({
-      userEmail: email,
+      [userState]: value,
     });
-  }
-  setUserPassword(password) {
-    this.setState({
-      userPassword: password,
-    });
-  }
+  };
   pressLoginAsync = async () => {
     if (!(this.state.userEmail && this.state.userPassword)) {
       Alert.alert(
@@ -90,14 +85,14 @@ class Login extends Component {
               placeholder="Enter email address"
               keyboarType="email-address"
               autoCorrect={false}
-              onChangeText={text => this.setUserEmail(text)}
+              onChangeText={text => this.setUserState('userEmail', text)}
             />
             <TextInput
               style={__style.txtInput}
               placeholder="Enter password"
               secureTextEntry
               autoCorrect={false}
-              onChangeText={text => this.setUserPassword(text)}
+              onChangeText={text => this.setUserState('userPassword', text)}
             />
             <Button title="Log in" onPress={this.pressLoginAsync} />
             <Text style={{textAlign: 'center'}}>OR</Text>

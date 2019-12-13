@@ -13,7 +13,7 @@ import {ListItem} from '../export_src';
 import {ImageButton} from '../export_src';
 import ImagePicker from 'react-native-image-picker';
 import axios from 'axios';
-import {URL_REQ} from '../export_src'
+import {URL_REQ} from '../export_src';
 
 class Profile extends Component {
   constructor(props) {

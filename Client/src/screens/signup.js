@@ -26,20 +26,8 @@ class Signup extends Component {
       userPhoneNumber: '',
     };
   }
-  setUserEmail = email => {
-    this.setState({userEmail: email});
-  };
-  setUserPassword = password => {
-    this.setState({userPassword: password});
-  };
-  setUserConfirmedPassword = password => {
-    this.setState({userConfirmedPassword: password});
-  };
-  setUserName = name => {
-    this.setState({userName: name});
-  };
-  setUserPhoneNumber = phoneNumber => {
-    this.setState({userPhoneNumber: phoneNumber});
+  setUserState = (userState, value) => {
+    this.setState({[userState]: value});
   };
   pressSubmitAsync = async () => {
     let {
@@ -122,32 +110,34 @@ class Signup extends Component {
               placeholder="Enter email address"
               keyboardType="email-address"
               autoCorrect={false}
-              onChangeText={text => this.setUserEmail(text)}
+              onChangeText={text => this.setUserState('userEmail', text)}
             />
             <TextInput
               style={__style.txtInput}
               placeholder="Enter password"
               secureTextEntry
               autoCorrect={false}
-              onChangeText={text => this.setUserPassword(text)}
+              onChangeText={text => this.setUserState('userPassword', text)}
             />
             <TextInput
               style={__style.txtInput}
               placeholder="Confirm password"
               secureTextEntry
               autoCorrect={false}
-              onChangeText={text => this.setUserConfirmedPassword(text)}
+              onChangeText={text =>
+                this.setUserState('userConfirmedPassword', text)
+              }
             />
             <TextInput
               style={__style.txtInput}
               placeholder="Enter your name"
-              onChangeText={text => this.setUserName(text)}
+              onChangeText={text => this.setUserState('userName', text)}
             />
             <TextInput
               style={__style.txtInput}
               placeholder="Enter your phone number"
               keyboardType="phone-pad"
-              onChangeText={text => this.setUserPhoneNumber(text)}
+              onChangeText={text => this.setUserState('userPhoneNumber', text)}
             />
             <View style={__style.btnStyle}>
               <Button title="Submit" onPress={this.pressSubmitAsync} />

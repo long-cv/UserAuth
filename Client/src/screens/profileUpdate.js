@@ -23,18 +23,10 @@ class ProfileUpdate extends React.Component {
       phoneNumber: '',
     };
   }
-  setName = text => {
-    this.setState({name: text});
+  setUserState = (userState, value) => {
+    this.setState({[userState]: value});
   };
-  setEmail = text => {
-    this.setState({email: text});
-  };
-  setPassword = text => {
-    this.setState({password: text});
-  };
-  setPhoneNumber = text => {
-    this.setState({phoneNumber: text});
-  };
+ 
   onPressSubmit = async () => {
     let {navigation} = this.props;
     let user = navigation.state.params;
@@ -105,27 +97,27 @@ class ProfileUpdate extends React.Component {
               <LabelTextInput
                 label="Name"
                 placeholder={user?.userName}
-                onChangeText={text => this.setName(text)}
+                onChangeText={text => this.setUserState('name', text)}
               />
               <LabelTextInput
                 label="Email"
                 placeholder={user?.userEmail}
                 keyboardType="email-address"
                 autoCorrect={false}
-                onChangeText={text => this.setEmail(text)}
+                onChangeText={text => this.setUserState('email', text)}
               />
               <LabelTextInput
                 label="Password"
                 placeholder="enter new password"
                 secureTextEntry
                 autoCorrect={false}
-                onChangeText={text => this.setPassword(text)}
+                onChangeText={text => this.setUserState('password', text)}
               />
               <LabelTextInput
                 label="Phone"
                 placeholder={user?.userPhoneNumber}
                 keyboardType="phone-pad"
-                onChangeText={text => this.setPhoneNumber(text)}
+                onChangeText={text => this.setUserState('phoneNumber', text)}
               />
             </View>
             <View style={styles.area02}>
