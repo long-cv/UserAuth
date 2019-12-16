@@ -14,6 +14,9 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import {URL_REQ} from '../export_src';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
+import {updateUser} from '../../redux/export';
 
 class Login extends Component {
   constructor(props) {
@@ -39,24 +42,26 @@ class Login extends Component {
       return;
     }
     try {
+      let {navigation, updateUser} = this.props;
       let response = await axios.post(URL_REQ.USER_LOGIN, {
         userEmail: this.state.userEmail,
         userPassword: this.state.userPassword,
       });
-      console.log(response.data);
-      console.log(response.status);
-      console.log(response.config);
+      // console.log(response.data);
+      // console.log(response.status);
+      // console.log(response.config);
       if (response.data.success) {
         await AsyncStorage.setItem('userToken', response.data.jwt);
-        this.props.navigation.navigate('profile', response.data.user);
+        updateUser(response.data.user);
+        navigation.navigate('profile');
       } else {
         Alert.alert('Warning', response.data.message);
       }
     } catch (error) {
       if (error.response) {
-        console.log(error.response.data);
-        console.log(error.response.status);
-        console.log(error.response.headers);
+        // console.log(error.response.data);
+        // console.log(error.response.status);
+        // console.log(error.response.headers);
         Alert.alert('Warning', error.response.data.message);
         return;
       } else {
@@ -121,4 +126,9 @@ const __style = StyleSheet.create({
   },
 });
 
-export default Login;
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators({updateUser}, dispatch);
+}
+const LoginContainer = connect(null, mapDispatchToProps)(Login);
+
+export default LoginContainer;

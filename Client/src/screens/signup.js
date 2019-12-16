@@ -14,7 +14,13 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import {URL_REQ, Service} from '../export_src';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
+import {updateUser} from '../../redux/export';
 
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators({updateUser}, dispatch);
+};
 class Signup extends Component {
   constructor(props) {
     super(props);
@@ -55,6 +61,7 @@ class Signup extends Component {
       return;
     }
     try {
+      let {navigation, updateUser} = this.props;
       let user = {
         userEmail: userEmail,
         userPassword: userPassword,
@@ -66,12 +73,13 @@ class Signup extends Component {
         url: URL_REQ.USER_REGISTER,
         data: user,
       });
-      console.log(response.data);
-      console.log(response.status);
-      console.log(response.config);
+      // console.log(response.data);
+      // console.log(response.status);
+      // console.log(response.config);
       if (response.data.success) {
         await AsyncStorage.setItem('userToken', response.data.jwt);
-        this.props.navigation.navigate('profile', user);
+        updateUser(response.data.user);
+        navigation.navigate('profile');
       } else {
         if (response.status === 201) {
           Alert.alert('Note', 'Sign up successfully! Please log in.');
@@ -82,8 +90,8 @@ class Signup extends Component {
       }
     } catch (error) {
       if (error.response) {
-        console.log(error.response.data);
-        console.log(error.response.status);
+        // console.log(error.response.data);
+        // console.log(error.response.status);
         Alert.alert('Error', error.response.data.message);
         return;
       }
@@ -172,4 +180,5 @@ const __style = StyleSheet.create({
   },
 });
 
-export default Signup;
+const SignupContainer = connect(null, mapDispatchToProps)(Signup);
+export default SignupContainer;

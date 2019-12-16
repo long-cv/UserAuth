@@ -12,7 +12,18 @@ import {
 } from 'react-native';
 import axios from 'axios';
 import {URL_REQ, LabelTextInput, Service} from '../export_src';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
+import {updateUser} from '../../redux/export';
 
+const mapStateToProps = state => {
+  return {
+    user: state.user
+  };
+};
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators({updateUser}, dispatch)
+};
 class ProfileUpdate extends React.Component {
   constructor(props) {
     super(props);
@@ -26,10 +37,8 @@ class ProfileUpdate extends React.Component {
   setUserState = (userState, value) => {
     this.setState({[userState]: value});
   };
- 
   onPressSubmit = async () => {
-    let {navigation} = this.props;
-    let user = navigation.state.params;
+    let {navigation, user, updateUser} = this.props;
     if (!user) return;
 
     let {name, email, password, phoneNumber} = this.state;
@@ -53,7 +62,7 @@ class ProfileUpdate extends React.Component {
       if (email) newUser.userEmail = email;
       if (password) newUser.userPassword = password;
       if (phoneNumber) newUser.userPhoneNumber = phoneNumber;
-      console.log(newUser);
+
       let response = await axios({
         method: 'PUT',
         url: URL_REQ.USER_UPDATE,
@@ -65,11 +74,12 @@ class ProfileUpdate extends React.Component {
           newUser: newUser,
         },
       });
-      console.log(response.data);
-      console.log(response.config);
+      // console.log(response.data);
+      // console.log(response.config);
       if (response.data.success) {
         if (response.data.jwt) await AsyncStorage.setItem('userToken', response.data.jwt);
-        navigation.navigate('profile', newUser);
+        updateUser(newUser);
+        navigation.navigate('profile');
       } else {
         if (response.status === 201) {
           Alert.alert('Note', 'Update successfully! Please log in.');
@@ -86,7 +96,7 @@ class ProfileUpdate extends React.Component {
     this.props.navigation.navigate('profile');
   };
   render = () => {
-    let user = this.props.navigation.state.params;
+    let {user} = this.props;
     return (
       <SafeAreaView style={styles.entireScr}>
         <TouchableWithoutFeedback
@@ -147,4 +157,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export {ProfileUpdate};
+const ProfileUpdateContainer = connect(mapStateToProps, mapDispatchToProps)(ProfileUpdate)
+export {ProfileUpdateContainer};

@@ -2,12 +2,17 @@ import React, {Component} from 'react';
 import {View, ActivityIndicator, AsyncStorage, StyleSheet} from 'react-native';
 import axios from 'axios';
 import {URL_REQ} from '../export_src';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
+import {updateUser} from '../../redux/export';
+
 
 class AppLoading extends Component {
   constructor(props) {
     super(props);
   }
   bootstrapAsync = async () => {
+    let {navigation, updateUser} = this.props;
     try {
       let userToken = await AsyncStorage.getItem('userToken');
       console.log(userToken);
@@ -18,28 +23,29 @@ class AppLoading extends Component {
           }
         })
         .then(response => {
-          this.props.navigation.navigate('profile', response.data.user);
-          console.log(response.data);
-          console.log(response.status);
-          console.log(response.statusText);
-          console.log(response.config);
+          navigation.navigate('profile');
+          updateUser(response.data.user);
+          // console.log(response.data);
+          // console.log(response.status);
+          // console.log(response.statusText);
+          // console.log(response.config);
         })
         .catch(error => {
-          this.props.navigation.navigate('auth');
-          if (error.response) {
-            console.log(error.response.data);
-            console.log(error.response.status);
-            console.log(error.response.headers);
-          } else {
-            console.log('Error', error.message);
-          }
-          console.log(error.config);
+          navigation.navigate('auth');
+          // if (error.response) {
+          //   // console.log(error.response.data);
+          //   // console.log(error.response.status);
+          //   // console.log(error.response.headers);
+          // } else {
+          //   // console.log('Error', error.message);
+          // }
+          // console.log(error.config);
         });
       } else {
-        this.props.navigation.navigate('auth');
+        navigation.navigate('auth');
       }
     } catch ({error}) {
-      this.props.navigation.navigate('auth');
+      navigation.navigate('auth');
     }
   };
   render() {
@@ -50,7 +56,7 @@ class AppLoading extends Component {
     );
   }
   componentDidMount() {
-    console.log('__________ called componentDidMuont');
+    //console.log('__________ called componentDidMuont');
     this.bootstrapAsync();
   }
   UNSAFE_componentWillMount() {}
@@ -63,5 +69,8 @@ const _styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-
-export default AppLoading;
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators({updateUser}, dispatch);
+};
+const AppLoadingContainer = connect(null, mapDispatchToProps)(AppLoading);
+export default AppLoadingContainer;

@@ -61,7 +61,7 @@ router.post('/register', async (request, response, next) => {
 		};
 		let token = await jwt.sign(payload);
 		console.log(token);
-		response.status(httpStatusCode).json({success: true, jwt: token});
+		response.status(httpStatusCode).json({success: true, jwt: token, user: newUser});
 	} catch(error) {
 		response.status(httpStatusCode).json({success: false, message: error});
 	}

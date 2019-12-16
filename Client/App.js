@@ -9,24 +9,26 @@ import React from 'react';
 import {View, StatusBar} from 'react-native';
 import {createAppContainer, createSwitchNavigator} from 'react-navigation';
 import {createStackNavigator} from 'react-navigation-stack';
-
+import {Provider} from 'react-redux';
+import {createStore} from 'redux';
+import {reducers} from './redux/export';
 import {
-  AppLoading,
-  Login,
-  Signup,
-  Profile,
-  ProfileUpdate,
+  AppLoadingContainer,
+  LoginContainer,
+  SignupContainer,
+  ProfileContainer,
+  ProfileUpdateContainer,
 } from './src/export_src';
 
 const _appStack = createStackNavigator({
   profile: {
-    screen: Profile,
+    screen: ProfileContainer,
     navigationOptions: {
       header: null,
     },
   },
   profileUpdate: {
-    screen: ProfileUpdate,
+    screen: ProfileUpdateContainer,
     navigationOptions: {
       header: null,
     },
@@ -35,10 +37,10 @@ const _appStack = createStackNavigator({
 const _authStatck = createStackNavigator(
   {
     login: {
-      screen: Login,
+      screen: LoginContainer,
     },
     signup: {
-      screen: Signup,
+      screen: SignupContainer,
     },
   },
   {
@@ -50,7 +52,7 @@ const _authStatck = createStackNavigator(
 const _AppContainer = createAppContainer(
   createSwitchNavigator(
     {
-      appLoading: AppLoading,
+      appLoading: AppLoadingContainer,
       app: _appStack,
       auth: _authStatck,
     },
@@ -59,14 +61,16 @@ const _AppContainer = createAppContainer(
     },
   ),
 );
+const store = createStore(reducers);
+//console.log('___________________________ start app, store = ', store);
 const App: () => React$Node = () => {
   return (
-    <>
+    <Provider store={store}>
       <StatusBar barStyle="dark-content" />
       <View style={{flex: 1}}>
         <_AppContainer />
       </View>
-    </>
+    </Provider>
   );
 };
 

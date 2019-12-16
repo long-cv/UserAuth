@@ -14,19 +14,23 @@ import {ImageButton} from '../export_src';
 import ImagePicker from 'react-native-image-picker';
 import axios from 'axios';
 import {URL_REQ} from '../export_src';
+import {connect} from 'react-redux';
+import {bindActionCreators} from 'redux';
+import {updateUser} from '../../redux/export';
+
+const mapStateToProps = state => {
+  return {
+    user: state.user
+  }
+};
+const mapDispatchToProps = dispatch => {
+  return bindActionCreators({updateUser}, dispatch);
+};
 
 class Profile extends Component {
-  constructor(props) {
-    super(props);
-    let user = this.props.navigation.state.params;
-    this.state = {
-      avatarURI: {uri: user?.userAvatar},
-    };
-  }
   pressUpdate = () => {
     let {navigation} = this.props;
-    let user = navigation.state.params;
-    navigation.navigate('profileUpdate', user);
+    navigation.navigate('profileUpdate');
   };
   pressLoguotAsync = async () => {
     await AsyncStorage.clear();
@@ -53,7 +57,7 @@ class Profile extends Component {
       } else if (response.error) {
         console.log('error: ', response.error);
       } else {
-        let user = this.props.navigation.state.params;
+        let {user} = this.props;
         let avatar = new FormData();
         avatar.append('userEmail', user?.userEmail);
         avatar.append('avatar', {
@@ -75,11 +79,8 @@ class Profile extends Component {
           });
           //console.log(resp.data);
           if (resp.data.success) {
-            user.userAvatar = resp.data.user.userAvatar;
-            //console.log(user.userAvatar);
-            this.setState({
-              avatarURI: {uri: resp.data.user.userAvatar},
-            });
+            let newUser = {userAvatar: resp.data.user.userAvatar};
+            this.props.updateUser(newUser);
           }
         } catch (error) {
           //console.log(error.response.config);
@@ -90,10 +91,11 @@ class Profile extends Component {
   };
   //UNSAFE_componentWillMount() {}
   render() {
-    let user = this.props.navigation.state.params;
+    let {user} = this.props;
+    if (!user) return;
     let dataArr = [
-      {id: 'item1', title: 'Email', info: user?.userEmail},
-      {id: 'item2', title: 'Phone', info: user?.userPhoneNumber},
+      {id: 'item1', title: 'Email', info: user.userEmail},
+      {id: 'item2', title: 'Phone', info: user.userPhoneNumber},
     ];
     return (
       <SafeAreaView style={__style.profile_scr}>
@@ -101,9 +103,9 @@ class Profile extends Component {
           <ImageButton
             onPress={this.onPressImageButton}
             style={__style.avatarImageStyle}
-            source={this.state.avatarURI}
+            source={{uri: user.userAvatar}}
           />
-          <Text style={__style.txtNameStyle}>{user?.userName}</Text>
+          <Text style={__style.txtNameStyle}>{user.userName}</Text>
         </View>
         <View style={__style.detailStyle}>
           <FlatList
@@ -152,4 +154,5 @@ const __style = StyleSheet.create({
   },
 });
 
-export default Profile;
+const ProfileContainer = connect(mapStateToProps, mapDispatchToProps)(Profile);
+export default ProfileContainer;
